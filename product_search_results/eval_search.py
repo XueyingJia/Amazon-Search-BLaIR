@@ -22,7 +22,7 @@ def set_device(gpu_id):
 def load_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataset', type=str, default='McAuley-Lab/Amazon-C4', help='dataset', choices=['McAuley-Lab/Amazon-C4', 'esci'])
+    parser.add_argument('--dataset', type=str, default='McAuley-Lab/Amazon-C4', help='dataset', choices=['McAuley-Lab/Amazon-C4', 'esci', 'XueyingJia/amazon-search-test'])
     parser.add_argument('--suffix', type=str, default='blair-baseCLS', help='suffix of the embs')
     parser.add_argument('-k', type=int, default=100, help='top k')
     parser.add_argument('--gpu_id', type=int, default=0, help='gpu id')
@@ -51,6 +51,13 @@ def load_items(args):
             filename='sampled_item_metadata_1M.jsonl',
             repo_type='dataset'
         )
+    elif args.dataset == 'XueyingJia/amazon-search-test':
+        filepath = hf_hub_download(
+            repo_id=args.dataset,
+            filename='description.jsonl',
+            repo_type='dataset',
+            cache_dir='./no_such_path'
+        )
     elif args.dataset == 'esci':
         filepath = os.path.join(args.data_path, 'esci/sampled_item_metadata_esci.jsonl')
     else:
@@ -71,13 +78,15 @@ def load_queries(args, item2id):
     query2target = []
     if args.dataset == 'McAuley-Lab/Amazon-C4':
         dataset = load_dataset(args.dataset)['test']
+    elif args.dataset == 'XueyingJia/amazon-search-test':
+        dataset = load_dataset(args.dataset)['test']
     elif args.dataset == 'esci':
         dataset = load_dataset('csv', data_files=os.path.join(args.data_path, 'esci/test.csv'))['train']
     else:
         raise NotImplementedError('Dataset not supported')
 
     for target_item in dataset['item_id']:
-        target_id = item2id[target_item]
+        target_id = item2id[int(target_item)]
         query2target.append(target_id)
     return query2target
 

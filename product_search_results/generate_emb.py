@@ -53,6 +53,12 @@ def generate_item_emb(args, tokenizer, model):
             filename='sampled_item_metadata_1M.jsonl',
             repo_type='dataset'
         )
+    elif args.dataset == 'XueyingJia/amazon-search-test':
+        filepath = hf_hub_download(
+            repo_id=args.dataset,
+            filename='description.jsonl',
+            repo_type='dataset'
+        )
     elif args.dataset == 'esci':
         filepath = os.path.join(args.cache_path, 'esci/sampled_item_metadata_esci.jsonl')
     else:
@@ -65,6 +71,8 @@ def generate_item_emb(args, tokenizer, model):
 
 def generate_query_emb(args, tokenizer, model):
     if args.dataset == 'McAuley-Lab/Amazon-C4':
+        dataset = load_dataset(args.dataset)['test']
+    elif args.dataset == 'XueyingJia/amazon-search-test':
         dataset = load_dataset(args.dataset)['test']
     elif args.dataset == 'esci':
         dataset = load_dataset('csv', data_files=os.path.join(args.cache_path, 'esci/test.csv'))['train']
@@ -89,7 +97,7 @@ def load_plm(model_name='bert-base-uncased'):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', type=str, default='McAuley-Lab/Amazon-C4', choices=['McAuley-Lab/Amazon-C4', 'esci'])
+    parser.add_argument('--dataset', type=str, default='McAuley-Lab/Amazon-C4', choices=['McAuley-Lab/Amazon-C4', 'esci', 'XueyingJia/amazon-search-test'])
     parser.add_argument('--cache_path', type=str, default='./cache/')
     parser.add_argument('--gpu_id', type=int, default=0, help='ID of running GPU')
     parser.add_argument('--plm_name', type=str, default='hyp1231/blair-roberta-base')
